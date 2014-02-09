@@ -1,19 +1,16 @@
-%define luaver 5.1
-%define lualibdir %{_libdir}/lua/%{luaver}
-%define luapkgdir %{_datadir}/lua/%{luaver}
-
-%define real_name luasec
-
+%define		luaver 5.1
+%define		lualibdir %{_libdir}/lua/%{luaver}
+%define		luapkgdir %{_datadir}/lua/%{luaver}
+%define		real_name luasec
 Summary:	Lua binding for OpenSSL library
 Name:		lua-sec
 Version:	0.5
 Release:	1
-
 License:	MIT
 Group:		Development/Libraries
-URL:		https://github.com/brunoos/luasec
 Source0:	https://github.com/brunoos/luasec/archive/luasec-%{version}.tar.gz
 # Source0-md5:	0518f4524f399f33424c6f450e1d06db
+URL:		https://github.com/brunoos/luasec
 BuildRequires:	lua-devel
 BuildRequires:	lua-socket-devel
 BuildRequires:	openssl-devel
@@ -28,31 +25,32 @@ session between the peers.
 %prep
 %setup -q -n %{real_name}-%{real_name}-%{version}
 for file in CHANGELOG LICENSE; do
-    iconv -f ISO-8859-1 -t UTF-8 -o $file.new $file && \
-    touch -r $file $file.new && \
-    mv $file.new $file
+	iconv -f ISO-8859-1 -t UTF-8 -o $file.new $file
+	touch -r $file $file.new
+	mv $file.new $file
 done
 
-
 %build
-%{__make} %{?_smp_mflags} CFLAGS="$RPM_OPT_FLAGS -I. -I%{_includedir}/lua51 -fPIC" linux
-
+%{__make} linux \
+	CC="%{__cc} %{rpmcppflags} %{rpmcflags} %{rpmldflags}" \
+	INC_PATH="-I%{_includedir}/lua51"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 %{__mkdir} -p $RPM_BUILD_ROOT%{luapkgdir}
 %{__mkdir} -p $RPM_BUILD_ROOT%{lualibdir}
-%{__make} install DESTDIR=$RPM_BUILD_ROOT LUAPATH=%{luapkgdir} LUACPATH=%{lualibdir}
-
+%{__make} install \
+	LUAPATH=%{luapkgdir} \
+	LUACPATH=%{lualibdir} \
+	DESTDIR=$RPM_BUILD_ROOT
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-
 %files
 %defattr(644,root,root,755)
 %doc CHANGELOG LICENSE
-%{lualibdir}/ssl.so
+%attr(755,root,root) %{lualibdir}/ssl.so
 %{luapkgdir}/ssl.lua
 %dir %{luapkgdir}/ssl
-%{luapkgdir}/ssl/*
+%{luapkgdir}/ssl/https.lua
