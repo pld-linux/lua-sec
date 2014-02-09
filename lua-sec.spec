@@ -6,28 +6,27 @@
 
 Summary:	Lua binding for OpenSSL library
 Name:		lua-sec
-Version:	0.4.1
+Version:	0.5
 Release:	1
 
 License:	MIT
 Group:		Development/Libraries
-URL:		http://www.inf.puc-rio.br/~brunoos/luasec/
-Source0:	http://www.inf.puc-rio.br/~brunoos/%{real_name}/download/%{real_name}-%{version}.tar.gz
-# Source0-md5:	b8a5fde3b3fdb6174f54cd51d7f53e12
-BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
+URL:		https://github.com/brunoos/luasec
+Source0:	https://github.com/brunoos/luasec/archive/luasec-%{version}.tar.gz
+# Source0-md5:	0518f4524f399f33424c6f450e1d06db
 BuildRequires:	lua-devel
+BuildRequires:	lua-socket-devel
 BuildRequires:	openssl-devel
 Requires:	lua-socket
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 Lua binding for OpenSSL library to provide TLS/SSL communication. It
 takes an already established TCP connection and creates a secure
 session between the peers.
 
-
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{real_name}-%{real_name}-%{version}
 for file in CHANGELOG LICENSE; do
     iconv -f ISO-8859-1 -t UTF-8 -o $file.new $file && \
     touch -r $file $file.new && \
@@ -36,14 +35,14 @@ done
 
 
 %build
-%{__make} %{?_smp_mflags} CFLAGS="$RPM_OPT_FLAGS -I%{_includedir}/lua51 -fPIC" linux
+%{__make} %{?_smp_mflags} CFLAGS="$RPM_OPT_FLAGS -I. -I%{_includedir}/lua51 -fPIC" linux
 
 
 %install
 rm -rf $RPM_BUILD_ROOT
 %{__mkdir} -p $RPM_BUILD_ROOT%{luapkgdir}
 %{__mkdir} -p $RPM_BUILD_ROOT%{lualibdir}
-%{__make} install DESTDIR=$RPM_BUILD_ROOT LUAPATH=$RPM_BUILD_ROOT%{luapkgdir} LUACPATH=$RPM_BUILD_ROOT%{lualibdir}
+%{__make} install DESTDIR=$RPM_BUILD_ROOT LUAPATH=%{luapkgdir} LUACPATH=%{lualibdir}
 
 
 %clean
