@@ -1,20 +1,32 @@
-%define		luaver 5.1
+# TODO
+# - use system lua-socket
+
+%define		luaver 5.3
+%define		real_name luasec
+
+%define		luasuffix %(echo %{luaver} | tr -d .)
+%if "%{luaver}" == "5.1"
+%define		luaincludedir %{_includedir}/lua51
+%else
+%define		luaincludedir %{_includedir}/lua%{luaver}
+%endif
 %define		lualibdir %{_libdir}/lua/%{luaver}
 %define		luapkgdir %{_datadir}/lua/%{luaver}
-%define		real_name luasec
+
 Summary:	Lua binding for OpenSSL library
-Name:		lua-sec
-Version:	0.5
+Name:		lua%{luasuffix}-sec
+Version:	0.9
 Release:	1
 License:	MIT
 Group:		Development/Libraries
-Source0:	https://github.com/brunoos/luasec/archive/luasec-%{version}.tar.gz
-# Source0-md5:	0518f4524f399f33424c6f450e1d06db
+Source0:	https://github.com/brunoos/luasec/archive/v%{version}/%{real_name}-%{version}.tar.gz
+# Source0-md5:	b31b56f6bf034a8240fcc47f0f4041c8
+Patch0:		makefile.patch
 URL:		https://github.com/brunoos/luasec
-BuildRequires:	lua-devel
-BuildRequires:	lua-socket-devel
+BuildRequires:	lua%{luasuffix}-devel
+#BuildRequires:	lua%{luasuffix}-socket-devel
 BuildRequires:	openssl-devel
-Requires:	lua-socket
+#Requires:	lua%{luasuffix}-socket
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -23,7 +35,9 @@ takes an already established TCP connection and creates a secure
 session between the peers.
 
 %prep
-%setup -q -n %{real_name}-%{real_name}-%{version}
+%setup -q -n %{real_name}-%{version}
+%patch0 -p1
+
 for file in CHANGELOG LICENSE; do
 	iconv -f ISO-8859-1 -t UTF-8 -o $file.new $file
 	touch -r $file $file.new
@@ -31,9 +45,11 @@ for file in CHANGELOG LICENSE; do
 done
 
 %build
+CFLAGS="%{rpmcppflags} %{rpmcflags}" \
+LDFLAGS="%{rpmldflags}" \
 %{__make} linux \
-	CC="%{__cc} %{rpmcppflags} %{rpmcflags} %{rpmldflags}" \
-	INC_PATH="-I%{_includedir}/lua51"
+	CC="%{__cc}" \
+	INC_PATH="-I%{luaincludedir}"
 
 %install
 rm -rf $RPM_BUILD_ROOT

@@ -1,0 +1,13 @@
+--- luasec-0.9/src/Makefile.orig	2019-10-31 15:43:53.000000000 +0100
++++ luasec-0.9/src/Makefile	2020-04-05 21:48:04.580625050 +0200
+@@ -16,8 +16,8 @@
+ BSD_CFLAGS=-O2 -fPIC $(WARN) $(INCDIR) $(DEFS)
+ BSD_LDFLAGS=-O -fPIC -shared $(LIBDIR)
+ 
+-LNX_CFLAGS=-O2 -fPIC $(WARN) $(INCDIR) $(DEFS)
+-LNX_LDFLAGS=-O -fPIC -shared $(LIBDIR)
++LNX_CFLAGS=-fPIC $(WARN) $(INCDIR) $(DEFS)
++LNX_LDFLAGS=-fPIC -shared $(LIBDIR)
+ 
+ MAC_ENV=env MACOSX_DEPLOYMENT_TARGET='$(MACVER)'
+ MAC_CFLAGS=-O2 -fno-common $(WARN) $(INCDIR) $(DEFS)
